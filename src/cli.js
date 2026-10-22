@@ -562,8 +562,8 @@ function cmdDoctor(dbPath) {
   const warn = (m) => say(`${yellow('!')} ${m}`);
   const fail = (m) => (say(`${red('✗')} ${m}`), (bad += 1));
   const [major, minor] = process.versions.node.split('.').map(Number);
-  if (major > 22 || (major === 22 && minor >= 13)) ok(`Node ${process.versions.node}`);
-  else fail(`Node ${process.versions.node}: ChatAtlas Local needs Node 22.13 or newer (nodejs.org).`);
+  if (major >= 24 || (major === 22 && minor >= 16)) ok(`Node ${process.versions.node}`);
+  else fail(`Node ${process.versions.node}: ChatAtlas Local needs Node 22.16 or newer, or Node 24 (nodejs.org).`);
   if (!existsSync(dbPath)) warn(`No archive yet at ${dbPath}. chatatlas-local import <export .zip> makes it.`);
   else {
     const archive = openArchive(dbPath);

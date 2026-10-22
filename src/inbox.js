@@ -57,7 +57,7 @@ export function scanInbox(archive, dir, { log = /** @type {(message: string) => 
  * Scans now, then again whenever the folder changes (once a file has stopped growing). Answers a
  * function that stops watching.
  */
-export function watchInbox(archive, dir, { log = /** @type {(message: string) => void} */ (() => {}), settleMs = 3000 } = {}) {
+export function watchInbox(archive, dir, { log = /** @type {(message: string) => void} */ (() => {}), settleMs = 3000, pollMs = 60_000 } = {}) {
   scanInbox(archive, dir, { log });
   let timer = null;
   const again = () => {
@@ -73,8 +73,12 @@ export function watchInbox(archive, dir, { log = /** @type {(message: string) =>
   };
   const w = watch(resolve(dir), { persistent: false }, again);
   w.on('error', (err) => log(`Stopped watching ${dir}: ${err.message}`));
+  // Some systems (macOS, network drives) can miss a change; a look every so often catches it.
+  const poll = setInterval(again, pollMs);
+  poll.unref();
   return () => {
     clearTimeout(timer);
+    clearInterval(poll);
     w.close();
   };
 }

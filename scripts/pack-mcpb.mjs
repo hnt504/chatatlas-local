@@ -50,7 +50,7 @@ const manifest = {
   tools: MCP_TOOLS.map((t) => ({ name: t.name, description: t.description })),
   keywords: pkg.keywords,
   license: pkg.license,
-  compatibility: { platforms: ['darwin', 'win32', 'linux'], runtimes: { node: '>=22.13.0' } },
+  compatibility: { platforms: ['darwin', 'win32', 'linux'], runtimes: { node: '>=22.16.0 <23.0.0 || >=24.0.0' } },
   user_config: {
     inbox: {
       type: 'directory',

@@ -2,9 +2,10 @@
 // ChatAtlas Local's command line. Node's built-in SQLite still prints an "experimental" warning
 // when it loads; that's noise for people using this, so it's left out (other warnings still show).
 
+// Node's built-in SQLite has full-text search from 22.16 on, and in 24 and newer (23 never had it).
 const [major, minor] = process.versions.node.split('.').map(Number);
-if (major < 22 || (major === 22 && minor < 13)) {
-  process.stderr.write(`ChatAtlas Local needs Node 22.13 or newer; this is Node ${process.versions.node}. Get a newer one at https://nodejs.org\n`);
+if (major < 22 || (major === 22 && minor < 16) || major === 23) {
+  process.stderr.write(`ChatAtlas Local needs Node 22.16 or newer, or Node 24; this is Node ${process.versions.node}. Get a newer one at https://nodejs.org\n`);
   process.exit(1);
 }
 

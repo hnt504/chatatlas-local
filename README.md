@@ -9,7 +9,7 @@ Ask Claude about them. Nothing leaves your machine.
 
 <p align="center">
 <a href="https://github.com/hnt504/chatatlas-local/actions/workflows/ci.yml"><img src="https://github.com/hnt504/chatatlas-local/actions/workflows/ci.yml/badge.svg" alt="Tests"></a>
-<img src="https://img.shields.io/badge/node-%E2%89%A522.13-3c873a" alt="Node 22.13 or newer">
+<img src="https://img.shields.io/badge/node-22.16%2B%20or%2024%2B-3c873a" alt="Node 22.16 or newer, or 24">
 <img src="https://img.shields.io/badge/license-MIT-6366f1" alt="MIT license">
 </p>
 
@@ -31,7 +31,7 @@ No account, no server, no telemetry. It never connects to the internet.
 
 ## Get started
 
-You need [Node.js](https://nodejs.org) 22.13 or newer. Then:
+You need [Node.js](https://nodejs.org) 22.16 or newer (or 24). Then:
 
 ```sh
 npm install -g chatatlas-local
@@ -183,7 +183,7 @@ file ChatAtlas Pro imports, and a ChatAtlas backup comes into ChatAtlas Local th
 
 ## Questions
 
-**Which Node do I need?** 22.13 or newer, because ChatAtlas Local uses the SQLite database built
+**Which Node do I need?** 22.16 or newer, or 24 and up (23 won't do), because ChatAtlas Local uses the SQLite database built
 into Node. `chatatlas-local doctor` checks.
 
 **A chat I had yesterday isn't there.** The archive holds what was in the exports you imported.

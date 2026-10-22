@@ -38,9 +38,9 @@ test('watchInbox picks up an export saved while it watches', async () => {
   mkdirSync(inbox);
   const a = openArchive(':memory:');
   const seen = [];
-  const stop = watchInbox(a, inbox, { log: (m) => seen.push(m), settleMs: 100 });
+  const stop = watchInbox(a, inbox, { log: (m) => seen.push(m), settleMs: 100, pollMs: 300 });
   writeFileSync(join(inbox, 'data-2026.zip'), zipSync({ 'conversations.json': strToU8(JSON.stringify(claudeExport)) }));
-  for (let i = 0; i < 50 && a.stats().chats === 0; i++) await new Promise((r) => setTimeout(r, 50));
+  for (let i = 0; i < 100 && a.stats().chats === 0; i++) await new Promise((r) => setTimeout(r, 50));
   stop();
   assert.equal(a.stats().chats, 2);
   assert.match(seen[0], /data-2026\.zip: Claude, 2 new/);

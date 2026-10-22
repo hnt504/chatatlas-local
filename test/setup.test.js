@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import {
   claudeCodeCommand,
   clients,
@@ -27,7 +27,7 @@ test('serverEntry: a lasting install by its path, an npx copy through npx, --db 
     'chatatlas-local',
     'mcp',
     '--db',
-    '/data/a.db',
+    resolve('/data/a.db'),
   ]);
 });
 

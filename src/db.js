@@ -1,5 +1,5 @@
 // The archive: one SQLite file on the person's own computer. Node's built-in SQLite (node:sqlite,
-// Node 22.13 or newer), so there's nothing to compile or download. Chats are kept whole (their
+// Node 22.16 or newer, or 24), so there's nothing to compile or download. Chats are kept whole (their
 // messages as JSON) beside a full-text index (FTS5) of their titles and words.
 
 import { DatabaseSync } from 'node:sqlite';
@@ -118,7 +118,15 @@ export function openArchive(path = defaultDbPath(), { readOnly = false } = {}) {
   const db = new DatabaseSync(path, readOnly ? { readOnly: true } : {});
   if (!readOnly) {
     db.exec('pragma journal_mode = wal; pragma foreign_keys = on;');
-    db.exec(SCHEMA);
+    try {
+      db.exec(SCHEMA);
+    } catch (err) {
+      if (/no such module: fts5/.test(String(err?.message))) {
+        db.close();
+        throw new Error(`This Node (${process.versions.node}) has no full-text search in its SQLite. ChatAtlas Local needs Node 22.16 or newer, or Node 24.`);
+      }
+      throw err;
+    }
     const { user_version } = /** @type {any} */ (db.prepare('pragma user_version').get());
     if (Number(user_version) < SCHEMA_VERSION) db.exec(`pragma user_version = ${SCHEMA_VERSION}`);
   }
