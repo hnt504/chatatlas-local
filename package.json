@@ -1,0 +1,55 @@
+{
+  "name": "chatatlas-local",
+  "version": "0.1.0",
+  "description": "Your ChatGPT and Claude chats, searchable on your own computer, and readable by Claude through MCP. Nothing leaves your machine.",
+  "type": "module",
+  "bin": {
+    "chatatlas-local": "bin/chatatlas-local.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "skill",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "test": "node --no-warnings --test",
+    "typecheck": "tsc -p jsconfig.json",
+    "format": "prettier --write src test bin scripts",
+    "check": "prettier --check src test bin scripts && npm run typecheck && npm test",
+    "pack:mcpb": "node --no-warnings scripts/pack-mcpb.mjs"
+  },
+  "keywords": [
+    "chatgpt",
+    "claude",
+    "mcp",
+    "chat-history",
+    "export",
+    "local",
+    "privacy",
+    "search"
+  ],
+  "homepage": "https://github.com/hnt504/chatatlas-local#readme",
+  "license": "MIT",
+  "dependencies": {
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "@anthropic-ai/mcpb": "^2.1.2",
+    "@types/node": "^22.10.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.6.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hnt504/chatatlas-local.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hnt504/chatatlas-local/issues"
+  },
+  "author": "Heather Turner"
+}

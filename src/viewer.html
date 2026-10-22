@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChatAtlas Local</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b1020;
+        --panel: #111830;
+        --panel-2: #172042;
+        --line: #24305a;
+        --ink: #e7ebf7;
+        --muted: #9aa5c6;
+        --faint: #6c789c;
+        --accent: #818cf8;
+        --accent-ink: #0b1020;
+        --you: #1e2a55;
+        --mark: #f5c84b;
+        --mark-ink: #1a1405;
+        --danger: #f87171;
+        --ok: #34d399;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          color-scheme: light;
+          --bg: #f5f6fb;
+          --panel: #ffffff;
+          --panel-2: #eef0f8;
+          --line: #dde1ee;
+          --ink: #141a2e;
+          --muted: #556084;
+          --faint: #7d87a6;
+          --accent: #4f46e5;
+          --accent-ink: #ffffff;
+          --you: #e9ebff;
+          --mark: #ffe08a;
+          --mark-ink: #1a1405;
+          --danger: #c43333;
+          --ok: #0f8a5f;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.5 var(--sans);
+        display: flex;
+        flex-direction: column;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+        color: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+        flex-wrap: wrap;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+      }
+      .brand svg {
+        width: 24px;
+        height: 24px;
+        color: var(--accent);
+      }
+      .brand small {
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .totals {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .local {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--ok);
+        border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
+        border-radius: 999px;
+        padding: 3px 10px;
+      }
+
+      main {
+        flex: 1;
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(300px, 420px) 1fr;
+      }
+      .side {
+        border-right: 1px solid var(--line);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        background: var(--panel);
+      }
+      .search {
+        padding: 14px;
+        display: grid;
+        gap: 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      .search input[type='search'] {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: var(--bg);
+      }
+      .filters {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .filters select,
+      .filters input {
+        padding: 6px 8px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--bg);
+        font-size: 13px;
+        min-width: 0;
+      }
+
+      .count {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--line);
+      }
+      .list {
+        overflow: auto;
+        flex: 1;
+      }
+      .item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        padding: 12px 14px;
+      }
+      .item:hover {
+        background: var(--panel-2);
+      }
+      .item[aria-current='true'] {
+        background: var(--panel-2);
+        box-shadow: inset 3px 0 0 var(--accent);
+      }
+      .item .t {
+        font-weight: 600;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .item .m {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .item .s {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .more {
+        margin: 12px auto;
+        display: block;
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--bg);
+      }
+      .pill {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 1px 7px;
+        border-radius: 999px;
+        background: var(--panel-2);
+        color: var(--muted);
+        margin-right: 4px;
+      }
+
+      .read {
+        overflow: auto;
+        min-height: 0;
+      }
+      .empty {
+        max-width: 560px;
+        margin: 12vh auto;
+        padding: 0 24px;
+        color: var(--muted);
+      }
+      .empty h2 {
+        color: var(--ink);
+        margin: 0 0 8px;
+        font-size: 20px;
+      }
+      .empty code {
+        font-family: var(--mono);
+        background: var(--panel-2);
+        padding: 2px 6px;
+        border-radius: 6px;
+        color: var(--ink);
+      }
+      .chat {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 24px 24px 80px;
+      }
+      .chat h1 {
+        font-size: 22px;
+        margin: 0 0 6px;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 13px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin: 14px 0 6px;
+      }
+      .actions button {
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        font-size: 13px;
+      }
+      .actions button.danger {
+        color: var(--danger);
+      }
+      .tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin: 8px 0 16px;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 4px 2px 10px;
+        border-radius: 999px;
+        background: var(--panel-2);
+        font-size: 13px;
+      }
+      .tag button {
+        border: 0;
+        background: none;
+        color: var(--muted);
+        padding: 0 6px;
+        border-radius: 999px;
+      }
+      .tags input {
+        border: 1px dashed var(--line);
+        background: none;
+        border-radius: 999px;
+        padding: 2px 10px;
+        font-size: 13px;
+        width: 120px;
+      }
+      .msg {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin: 12px 0;
+        background: var(--panel);
+      }
+      .msg.you {
+        background: var(--you);
+      }
+      .msg.hit {
+        box-shadow: 0 0 0 2px var(--mark);
+      }
+      .who {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        margin-bottom: 6px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .body {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .body pre {
+        white-space: pre;
+        overflow: auto;
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font: 13px/1.45 var(--mono);
+      }
+      .body code {
+        font: 13px var(--mono);
+        background: var(--panel-2);
+        padding: 1px 5px;
+        border-radius: 5px;
+      }
+      .body pre code {
+        background: none;
+        padding: 0;
+      }
+      mark {
+        background: var(--mark);
+        color: var(--mark-ink);
+        border-radius: 3px;
+        padding: 0 1px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--ink);
+        color: var(--bg);
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        pointer-events: none;
+      }
+      .toast.on {
+        opacity: 1;
+      }
+      .back {
+        display: none;
+      }
+      .err {
+        color: var(--danger);
+        padding: 14px;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+        body.reading .side {
+          display: none;
+        }
+        body:not(.reading) .read {
+          display: none;
+        }
+        .back {
+          display: inline-block;
+        }
+        .local {
+          margin-left: 0;
+        }
+        .totals {
+          display: none;
+        }
+        header {
+          padding: 10px 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18" />
+        </svg>
+        <span>ChatAtlas <small>Local</small></span>
+      </div>
+      <span class="totals" id="totals"></span>
+      <span class="local" title="This page is served by chatatlas-local on your own computer and talks to nothing else.">● On this computer only</span>
+    </header>
+    <main>
+      <section class="side" aria-label="Your chats">
+        <form class="search" id="form" role="search">
+          <input type="search" id="q" placeholder="Search every chat… (press / )" autocomplete="off" aria-label="Search" />
+          <div class="filters">
+            <select id="platform" aria-label="Platform">
+              <option value="">Every platform</option>
+            </select>
+            <select id="tag" aria-label="Tag">
+              <option value="">Any tag</option>
+            </select>
+            <input id="since" placeholder="From 2025-01" aria-label="From" />
+            <input id="until" placeholder="To 2026" aria-label="Through" />
+          </div>
+        </form>
+        <div class="count" id="count" aria-live="polite"></div>
+        <div class="list" id="list"></div>
+      </section>
+      <section class="read" id="read" aria-label="Chat">
+        <div class="empty" id="welcome"></div>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status"></div>
+    <script>
+      (() => {
+        const NAMES = {
+          chatgpt: 'ChatGPT',
+          claude: 'Claude',
+          gemini: 'Gemini',
+          grok: 'Grok',
+          perplexity: 'Perplexity',
+          deepseek: 'DeepSeek',
+          meta: 'Meta AI',
+          copilot: 'Copilot',
+          mistral: 'Mistral',
+        };
+        const name = (p) => NAMES[p] || p || 'Unknown';
+        const $ = (id) => document.getElementById(id);
+        const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+        const day = (iso) => {
+          const d = new Date(iso);
+          return isNaN(d) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+        };
+        const n = (x) => Number(x || 0).toLocaleString('en-US');
+        const listOf = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
+        // The key comes in the address's #fragment (never sent anywhere), then lives in this tab only.
+        const fromHash = new URLSearchParams(location.hash.slice(1)).get('key');
+        if (fromHash) {
+          sessionStorage.setItem('chatatlas-key', fromHash);
+          history.replaceState(null, '', location.pathname);
+        }
+        const KEY = sessionStorage.getItem('chatatlas-key') || '';
+
+        async function api(path, body) {
+          const res = await fetch(
+            path,
+            body
+              ? { method: 'POST', headers: { 'content-type': 'application/json', 'x-chatatlas-key': KEY }, body: JSON.stringify(body) }
+              : { headers: { 'x-chatatlas-key': KEY } },
+          );
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'The archive answered ' + res.status);
+          return data;
+        }
+        const toast = (msg) => {
+          const t = $('toast');
+          t.textContent = msg;
+          t.classList.add('on');
+          clearTimeout(toast.t);
+          toast.t = setTimeout(() => t.classList.remove('on'), 1800);
+        };
+
+        let overview = null,
+          state = { offset: 0, total: 0, words: [], current: null },
+          seq = 0,
+          readOnly = false;
+
+        function params(offset) {
+          const p = new URLSearchParams();
+          for (const k of ['q', 'platform', 'tag', 'since', 'until']) {
+            const v = $(k).value.trim();
+            if (v) p.set(k, v);
+          }
+          p.set('offset', String(offset));
+          p.set('limit', '50');
+          return p;
+        }
+
+        function itemHtml(c) {
+          const hit = c.hit
+            ? `<div class="s">${c.hit.role === 'user' ? 'You' : esc(name(c.platform))}: ${mark(esc(c.hit.text.replace(/```[\w-]*/g, ' ')))}</div>`
+            : '';
+          const tags = (c.tags || []).map((t) => `<span class="pill">${esc(t)}</span>`).join('');
+          return `<button class="item" data-id="${esc(c.id)}" data-hit="${c.hit ? c.hit.index : ''}" aria-current="${state.current === c.id}">
+      <div class="t">${mark(esc(c.title || 'Untitled'))}</div>
+      <div class="m">${esc(name(c.platform))} · ${day(c.date)} · ${n(c.message_count)} messages ${tags}</div>${hit}</button>`;
+        }
+
+        async function load(append) {
+          const my = ++seq;
+          const offset = append ? state.offset : 0;
+          try {
+            const data = await api('/api/chats?' + params(offset));
+            if (my !== seq) return;
+            state.words = data.words || [];
+            state.total = data.total;
+            state.offset = offset + data.chats.length;
+            const list = $('list');
+            list.querySelector('.more')?.remove();
+            if (!append) list.innerHTML = '';
+            list.insertAdjacentHTML('beforeend', data.chats.map(itemHtml).join(''));
+            if (state.offset < state.total) list.insertAdjacentHTML('beforeend', '<button class="more" id="more">Show more</button>');
+            const q = $('q').value.trim();
+            $('count').textContent =
+              state.total === 0
+                ? q
+                  ? `No chats hold every word of “${q}”.`
+                  : 'No chats match.'
+                : `${n(state.total)} chat${state.total === 1 ? '' : 's'}${q ? ` with “${q}”` : ''}, ${q ? 'title matches first' : 'newest first'}`;
+          } catch (e) {
+            $('list').innerHTML = `<div class="err">${esc(e.message)}</div>`;
+          }
+        }
+
+        // Words of the search, painted where they appear (outside tags: input is escaped HTML).
+        function mark(html) {
+          if (!state.words.length) return html;
+          const re = new RegExp('(' + state.words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+          return html
+            .split(/(<[^>]+>)/)
+            .map((part) => (part.startsWith('<') ? part : part.replace(re, '<mark>$1</mark>')))
+            .join('');
+        }
+
+        // A little Markdown: code blocks, inline code, bold, italics. Everything else stays as written.
+        function render(text) {
+          const parts = String(text || '').split(/```/);
+          return parts
+            .map((part, i) => {
+              // No blank line between the words and a code block: the block has its own space.
+              if (i % 2 === 0) part = part.replace(i > 0 ? /^[ \t]*\n+/ : /^$/, '').replace(i < parts.length - 1 ? /\n+[ \t]*$/ : /$^/, '');
+              if (i % 2 === 1) {
+                const nl = part.indexOf('\n');
+                const code = nl === -1 ? part : part.slice(nl + 1);
+                return `<pre><code>${esc(code.replace(/\n$/, ''))}</code></pre>`;
+              }
+              return mark(
+                esc(part)
+                  .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+                  .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+                  .replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,!?:;]|$)/g, '$1<em>$2</em>'),
+              );
+            })
+            .join('');
+        }
+
+        async function openChat(id, hit) {
+          state.current = id;
+          document.querySelectorAll('.item').forEach((el) => el.setAttribute('aria-current', String(el.dataset.id === id)));
+          document.body.classList.add('reading');
+          const read = $('read');
+          try {
+            const c = await api('/api/chat?id=' + encodeURIComponent(id));
+            const msgs = c.messages
+              .map(
+                (m, i) => `<article class="msg ${m.role === 'user' ? 'you' : ''} ${String(i) === String(hit) ? 'hit' : ''}" id="m${i}">
+        <div class="who"><span>${m.role === 'user' ? 'You' : esc(name(c.platform))}</span><span>${i + 1}</span></div><div class="body">${render(m.content)}</div></article>`,
+              )
+              .join('');
+            read.innerHTML = `<div class="chat">
+        <button class="back actions" id="back">← All chats</button>
+        <h1>${esc(c.title || 'Untitled')}</h1>
+        <div class="meta"><span class="pill">${esc(name(c.platform))}</span><span>${day(c.date)} · ${n(c.message_count)} messages · ${n(c.words)} words</span></div>
+        <div class="actions">
+          <button data-act="copy">Copy as Markdown</button>
+          <button data-act="download">Download .md</button>
+          <button data-act="id">Copy its id</button>
+          ${readOnly ? '' : '<button data-act="forget" class="danger">Forget this chat</button>'}
+        </div>
+        <div class="tags" id="tags"></div>
+        ${msgs}</div>`;
+            read.dataset.markdown = c.markdown;
+            read.dataset.file = c.fileName;
+            read.dataset.id = c.id;
+            drawTags(c);
+            const target = hit !== '' && hit != null ? document.getElementById('m' + hit) : null;
+            if (target) target.scrollIntoView({ block: 'center' });
+            else read.scrollTop = 0;
+          } catch (e) {
+            read.innerHTML = `<div class="err">${esc(e.message)}</div>`;
+          }
+        }
+
+        function drawTags(c) {
+          const box = $('tags');
+          box.innerHTML =
+            (c.tags || [])
+              .map((t) => `<span class="tag">${esc(t)}${readOnly ? '' : `<button aria-label="Take off ${esc(t)}" data-untag="${esc(t)}">×</button>`}</span>`)
+              .join('') + (readOnly ? '' : '<input id="addtag" placeholder="+ tag" aria-label="Add a tag" maxlength="60">');
+          box.dataset.tags = JSON.stringify(c.tags || []);
+        }
+
+        async function saveTags(tags) {
+          const { chat } = await api('/api/tags', { id: $('read').dataset.id, tags });
+          drawTags(chat);
+          const item = document.querySelector(`.item[data-id="${CSS.escape(chat.id)}"] .m`);
+          if (item)
+            item.innerHTML = `${esc(name(chat.platform))} · ${day(chat.date)} · ${n(chat.message_count)} messages ${(chat.tags || []).map((t) => `<span class="pill">${esc(t)}</span>`).join('')}`;
+          refreshTags();
+        }
+
+        async function refreshTags() {
+          overview = await api('/api/overview');
+          const tag = $('tag'),
+            keep = tag.value;
+          tag.innerHTML =
+            '<option value="">Any tag</option>' + overview.tags.map((t) => `<option value="${esc(t.tag)}">${esc(t.tag)} (${n(t.chats)})</option>`).join('');
+          tag.value = keep;
+        }
+
+        document.addEventListener('click', async (e) => {
+          const el = e.target.closest('button');
+          if (!el) return;
+          if (el.classList.contains('item')) return openChat(el.dataset.id, el.dataset.hit);
+          if (el.id === 'more') return load(true);
+          if (el.id === 'back') {
+            document.body.classList.remove('reading');
+            return;
+          }
+          if (el.dataset.untag) {
+            const tags = JSON.parse($('tags').dataset.tags).filter((t) => t !== el.dataset.untag);
+            return saveTags(tags).catch((x) => toast(x.message));
+          }
+          const read = $('read');
+          switch (el.dataset.act) {
+            case 'copy':
+              await navigator.clipboard.writeText(read.dataset.markdown);
+              return toast('Copied');
+            case 'id':
+              await navigator.clipboard.writeText(read.dataset.id);
+              return toast('Copied the id');
+            case 'download': {
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(new Blob([read.dataset.markdown], { type: 'text/markdown' }));
+              a.download = read.dataset.file;
+              a.click();
+              setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+              return;
+            }
+            case 'forget':
+              if (
+                !confirm(
+                  'Take this chat out of ChatAtlas Local? Importing the same export again brings it back. Your ChatGPT or Claude account is not touched.',
+                )
+              )
+                return;
+              try {
+                await api('/api/forget', { id: read.dataset.id });
+                document.querySelector(`.item[data-id="${CSS.escape(read.dataset.id)}"]`)?.remove();
+                read.innerHTML = '';
+                document.body.classList.remove('reading');
+                toast('Forgotten');
+                start();
+              } catch (x) {
+                toast(x.message);
+              }
+          }
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.target.id === 'addtag' && e.key === 'Enter') {
+            e.preventDefault();
+            const v = e.target.value.trim();
+            if (!v) return;
+            const tags = JSON.parse($('tags').dataset.tags);
+            if (!tags.some((t) => t.toLowerCase() === v.toLowerCase())) tags.push(v);
+            saveTags(tags).catch((x) => toast(x.message));
+          }
+          if (e.key === '/' && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) {
+            e.preventDefault();
+            $('q').focus();
+          }
+        });
+        let t;
+        $('form').addEventListener('input', () => {
+          clearTimeout(t);
+          t = setTimeout(() => load(false), 220);
+        });
+        $('form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          load(false);
+        });
+
+        async function start() {
+          try {
+            overview = await api('/api/overview');
+            readOnly = overview.readOnly;
+            $('totals').textContent = overview.chats
+              ? `${n(overview.chats)} chats · ${n(overview.words)} words · ${day(overview.first)} to ${day(overview.last)}`
+              : '';
+            const platform = $('platform'),
+              keep = platform.value;
+            platform.innerHTML =
+              '<option value="">Every platform</option>' +
+              overview.platforms.map((p) => `<option value="${esc(p.platform)}">${esc(name(p.platform))} (${n(p.chats)})</option>`).join('');
+            platform.value = keep;
+            await refreshTags();
+            $('welcome') &&
+              ($('welcome').innerHTML = overview.chats
+                ? `<h2>Pick a chat, or search them all.</h2><p>${n(overview.chats)} chats from ${listOf(overview.platforms.map((p) => esc(name(p.platform))))}, kept on this computer. Every word you type must be in the chat; each one also finds longer words it starts.</p><p>Close this tab and press Ctrl+C in the terminal when you're done.</p>`
+                : `<h2>Nothing here yet.</h2><p>Ask ChatGPT or Claude for your data export (in their settings, under data controls or privacy), then bring the .zip in:</p><p><code>chatatlas-local import ~/Downloads/your-export.zip</code></p>`);
+            load(false);
+          } catch (e) {
+            $('welcome').innerHTML =
+              `<h2>This page can't reach your archive.</h2><p>${esc(e.message)}</p><p>Run <code>chatatlas-local open</code> again and use the address it opens.</p>`;
+          }
+        }
+        start();
+      })();
+    </script>
+  </body>
+</html>
