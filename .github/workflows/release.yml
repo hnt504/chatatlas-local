@@ -7,6 +7,13 @@ name: Release
 on:
   push:
     tags: ['v*']
+  # Publishing a release on GitHub's website (with a new v… tag) starts it too.
+  release:
+    types: [published]
+
+# A tag pushed and its release published can both start this; one run at a time per tag.
+concurrency:
+  group: release-${{ github.ref_name }}
 
 permissions:
   contents: write
@@ -43,4 +50,10 @@ jobs:
         if: env.NPM_TOKEN != ''
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --provenance --access public
+        run: |
+          v=$(node -p "require('./package.json').version")
+          if npm view "chatatlas-local@$v" version >/dev/null 2>&1; then
+            echo "chatatlas-local@$v is already on npm."
+          else
+            npm publish --provenance --access public
+          fi
