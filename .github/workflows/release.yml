@@ -1,7 +1,8 @@
 name: Release
 
 # Push a tag like v0.1.0: the tests run, the Claude Desktop extension is built and attached to a
-# GitHub release, and, if an NPM_TOKEN secret is set, the package is published to npm.
+# GitHub release, and, if an NPM_TOKEN secret is set, the package is published to npm. Adding the
+# secret later? Re-run this workflow from the Actions tab and it publishes.
 
 on:
   push:
@@ -31,7 +32,13 @@ jobs:
       - name: GitHub release with the extension
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/*.mcpb --title "${GITHUB_REF_NAME}" --notes-file CHANGELOG.md
+        # Re-running this workflow (say, after adding NPM_TOKEN) updates the release instead of failing.
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" dist/*.mcpb --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" dist/*.mcpb --title "ChatAtlas Local ${GITHUB_REF_NAME}" --notes-file CHANGELOG.md
+          fi
       - name: Publish to npm
         if: env.NPM_TOKEN != ''
         env:
