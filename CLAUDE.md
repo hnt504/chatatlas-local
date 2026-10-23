@@ -16,6 +16,8 @@ CLI and a 127.0.0.1 browser view. See CONTRIBUTING.md for where things are.
   publishing (no token stored). The Claude plugin in `plugin/` (listed by
   `.claude-plugin/marketplace.json`, and the one submitted to Anthropic's directory) runs the npm
   package at a pinned version: bump `plugin.json`'s version and every `chatatlas-local@<version>` in
-  `plugin/` with each release (`test/plugin.test.js` checks), after npm has the new version.
+  `plugin/` in a follow-up once npm has the new version (`test/plugin.test.js` checks the pins agree
+  and never run ahead). The release also publishes `server.json` to the official MCP Registry; its
+  versions follow package.json, and `mcpName` in package.json must match its name.
 - Pro's MCP server lives in hnt504/ChatAtlas `scripts/mcp/`; `src/format.js` and the tool texts
   started as copies of it. The two share the ChatAtlas backup format (`toChatAtlasBackup`).

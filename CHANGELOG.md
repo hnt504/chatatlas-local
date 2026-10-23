@@ -1,5 +1,10 @@
 # Changes
 
+## 0.1.2
+
+- Listed in the official MCP Registry (`io.github.hnt504/chatatlas-local`).
+- A Claude plugin (Claude Code and Cowork), with a privacy policy in the README.
+
 ## 0.1.1
 
 - The README no longer says ChatGPT can use ChatAtlas Pro.
