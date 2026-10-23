@@ -1,5 +1,10 @@
 # Changes
 
+## 0.1.1
+
+- The README no longer says ChatGPT can use ChatAtlas Pro.
+- Releases publish to npm through npm's trusted publishing, and run once per release.
+
 ## 0.1.0
 
 The first release.

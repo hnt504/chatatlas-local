@@ -1,6 +1,6 @@
 {
   "name": "chatatlas-local",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Your ChatGPT and Claude chats, searchable on your own computer, and readable by Claude through MCP. Nothing leaves your machine.",
   "type": "module",
   "bin": {
