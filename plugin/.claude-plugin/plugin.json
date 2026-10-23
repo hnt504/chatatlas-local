@@ -1,0 +1,11 @@
+{
+  "name": "chatatlas-local",
+  "displayName": "ChatAtlas Local",
+  "version": "0.1.1",
+  "description": "Search and read your saved ChatGPT and Claude chats, kept in one file on your own computer. Read-only tools, no network connections.",
+  "author": { "name": "Heather Turner", "url": "https://github.com/hnt504" },
+  "homepage": "https://github.com/hnt504/chatatlas-local",
+  "repository": "https://github.com/hnt504/chatatlas-local",
+  "license": "MIT",
+  "keywords": ["chatgpt", "claude", "chat history", "search", "archive", "local", "privacy"]
+}

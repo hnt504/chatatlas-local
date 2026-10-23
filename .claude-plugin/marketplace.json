@@ -1,0 +1,15 @@
+{
+  "name": "chatatlas-local",
+  "description": "ChatAtlas Local: your ChatGPT and Claude chats, searchable on your own computer.",
+  "owner": {
+    "name": "Heather Turner",
+    "url": "https://github.com/hnt504"
+  },
+  "plugins": [
+    {
+      "name": "chatatlas-local",
+      "source": "./plugin",
+      "description": "Search and read your saved ChatGPT and Claude chats, kept in one file on your own computer."
+    }
+  ]
+}
