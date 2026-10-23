@@ -27,6 +27,14 @@ test('the plugin copy is plain, friendly and has no em dashes', () => {
   }
 });
 
+test('the plugin carries the square icon the directory lists', () => {
+  const png = readFileSync(join(root, 'plugin/.claude-plugin/icon.png'));
+  assert.equal(png.subarray(1, 4).toString(), 'PNG');
+  const [width, height] = [png.readUInt32BE(16), png.readUInt32BE(20)];
+  assert.equal(width, height);
+  assert.ok(width >= 512 && width <= 2048, `${width}px`);
+});
+
 test('the marketplace lists the plugin folder', () => {
   const market = JSON.parse(read('.claude-plugin/marketplace.json'));
   assert.deepEqual(
