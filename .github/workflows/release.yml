@@ -61,3 +61,11 @@ jobs:
           else
             npm publish --provenance --access public
           fi
+      # The official MCP Registry (registry.modelcontextprotocol.io) lists the server from
+      # server.json; it checks that the npm package's mcpName matches, and GitHub's identity proves
+      # the io.github.hnt504 namespace. No secret needed.
+      - name: Publish to the MCP Registry
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish

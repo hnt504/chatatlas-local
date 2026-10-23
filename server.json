@@ -1,0 +1,43 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.hnt504/chatatlas-local",
+  "title": "ChatAtlas Local",
+  "description": "Search and read your saved ChatGPT and Claude chats, kept on your own computer.",
+  "repository": {
+    "url": "https://github.com/hnt504/chatatlas-local",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/hnt504/chatatlas-local#readme",
+  "version": "0.1.2",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "chatatlas-local",
+      "version": "0.1.2",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "CHATATLAS_LOCAL_DB",
+          "description": "Where to keep the archive file (default ~/.chatatlas-local/chatatlas.db).",
+          "isRequired": false,
+          "format": "filepath"
+        },
+        {
+          "name": "CHATATLAS_LOCAL_INBOX",
+          "description": "A folder to watch: ChatGPT or Claude export .zip files saved there come in by themselves.",
+          "isRequired": false,
+          "format": "filepath"
+        }
+      ]
+    }
+  ]
+}
