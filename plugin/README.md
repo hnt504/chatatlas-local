@@ -25,7 +25,7 @@ Ask ChatGPT (Settings → Data controls → Export data) and Claude (Settings �
 for your data exports. Each arrives by email as a .zip. Then ask Claude to import it, or run:
 
 ```sh
-npx -y chatatlas-local@0.1.1 import ~/Downloads/<your export>.zip
+npx -y chatatlas-local@0.1.2 import ~/Downloads/<your export>.zip
 ```
 
 ## Data and privacy

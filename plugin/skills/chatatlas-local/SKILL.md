@@ -35,7 +35,7 @@ controls → Export data. Claude: Settings → Privacy → Export data; each arr
 When they have the .zip, offer to bring it in, and run this only once they say yes:
 
 ```sh
-npx -y chatatlas-local@0.1.1 import "<path to the export .zip>"
+npx -y chatatlas-local@0.1.2 import "<path to the export .zip>"
 ```
 
 Importing again later only adds new chats and updates changed ones. Never run `forget` or `tag`
