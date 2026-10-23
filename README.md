@@ -99,8 +99,8 @@ chatatlas-local setup cursor --write  # or vscode, windsurf, gemini-cli, codex
 
 ### What about ChatGPT?
 
-ChatGPT only connects to servers on the internet, so it can't reach a file on your computer.
-[ChatAtlas Pro](https://chatatlas.pro) is the online version it can use (see below).
+ChatGPT can't reach a file on your computer, so it can't read your archive here. You can still
+import your ChatGPT exports and search them from Claude, the terminal or the browser view.
 
 ## What the assistant can do
 
