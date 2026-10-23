@@ -1,17 +1,22 @@
 name: Release
 
-# Push a tag like v0.1.0: the tests run, the Claude Desktop extension is built and attached to a
-# GitHub release, and, if an NPM_TOKEN secret is set, the package is published to npm. Adding the
-# secret later? Re-run this workflow from the Actions tab and it publishes.
+# Publish a release on GitHub (Releases → Draft a new release, new tag v<version>), or run
+# `gh release create v<version>`: the tests run, the Claude Desktop extension is built and attached
+# to the release, and the package is published to npm.
+#
+# npm publishing uses npm's trusted publishing: npmjs.com → chatatlas-local → Settings → Trusted
+# publisher → GitHub Actions, hnt504/chatatlas-local, workflow release.yml. No token is stored.
+# (An NPM_TOKEN secret still works if it's set, but npm stops accepting tokens that skip 2FA for
+# publishing in January 2027.) Re-running this workflow is safe: a version already on npm is left
+# alone and the release's extension is replaced.
+#
+# Only a published release starts it (it used to start on the tag too, so one release ran twice).
 
 on:
-  push:
-    tags: ['v*']
-  # Publishing a release on GitHub's website (with a new v… tag) starts it too.
   release:
     types: [published]
+  workflow_dispatch:
 
-# A tag pushed and its release published can both start this; one run at a time per tag.
 concurrency:
   group: release-${{ github.ref_name }}
 
@@ -22,13 +27,12 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          # npm 11.5.1 or newer for trusted publishing; Node 24 comes with it.
+          node-version: 24
           cache: npm
           registry-url: https://registry.npmjs.org
       - run: npm ci
@@ -39,7 +43,7 @@ jobs:
       - name: GitHub release with the extension
         env:
           GH_TOKEN: ${{ github.token }}
-        # Re-running this workflow (say, after adding NPM_TOKEN) updates the release instead of failing.
+        # Re-running this workflow updates the release instead of failing.
         run: |
           if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
             gh release upload "${GITHUB_REF_NAME}" dist/*.mcpb --clobber
@@ -47,8 +51,8 @@ jobs:
             gh release create "${GITHUB_REF_NAME}" dist/*.mcpb --title "ChatAtlas Local ${GITHUB_REF_NAME}" --notes-file CHANGELOG.md
           fi
       - name: Publish to npm
-        if: env.NPM_TOKEN != ''
         env:
+          # Empty unless the secret is set; then npm uses trusted publishing.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           v=$(node -p "require('./package.json').version")
