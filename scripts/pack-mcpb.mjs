@@ -37,6 +37,7 @@ const manifest = {
   homepage: 'https://github.com/hnt504/chatatlas-local',
   documentation: 'https://github.com/hnt504/chatatlas-local#readme',
   support: 'https://github.com/hnt504/chatatlas-local/issues',
+  privacy_policies: ['https://github.com/hnt504/chatatlas-local#privacy-policy'],
   icon: 'icon.png',
   server: {
     type: 'node',

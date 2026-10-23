@@ -81,7 +81,22 @@ chatatlas-local setup claude-desktop --write
 Quit Claude Desktop completely and open it again. Then ask it something like *"Search my old chats
 for the kitchen remodel estimate."*
 
+**About the red warning.** When you open the extension, Claude Desktop says installing it "will
+grant this extension access to everything on your computer." It says that for every extension
+installed from a file rather than from Anthropic's directory, because an extension is a program
+that runs as you. Here's what this one actually does: it reads your exports and its own archive
+file, never connects to the internet, and gives Claude read-only tools. The code is all here to
+check.
+
 ### Claude Code
+
+Install it as a plugin (the MCP tools and a skill that teaches Claude when to look here):
+
+```
+/plugin install chatatlas-local --marketplace hnt504/chatatlas-local
+```
+
+Or, with the command installed:
 
 ```sh
 chatatlas-local setup claude-code --write   # the MCP tools, for every project
@@ -150,17 +165,30 @@ The Claude Desktop extension asks for this folder when you install it.
 Filters for `search`, `list`, `export` and `topics`: `--platform chatgpt`, `--tag work`,
 `--since 2025-03`, `--until 2026`, `--title garden`, `--limit 50`, `--offset 50`, `--json`.
 
-## Privacy
+## Privacy policy
 
-- Your chats live in one SQLite file: `~/.chatatlas-local/chatatlas.db` (`chatatlas-local where`
-  says exactly where). Use another with `--db <file>` or the `CHATATLAS_LOCAL_DB` setting.
-- ChatAtlas Local makes no network connections. The browser view listens on `127.0.0.1` only,
-  answers only requests addressed to it, and every request needs a random key that only the tab it
-  opened knows.
-- Assistants get read-only tools. What you ask them, and what they read to answer, goes to that
-  assistant the way anything else you tell it does.
-- To delete everything: remove the `~/.chatatlas-local` folder. Your ChatGPT and Claude accounts
-  are never touched.
+ChatAtlas Local is a program that runs on your computer. It has no servers and no accounts.
+
+- **What it collects:** nothing. It has no analytics, telemetry or crash reporting, and never makes
+  a network connection.
+- **What it stores, and where:** the chats from the exports you import, plus any tags you add, in
+  one SQLite file on your computer: `~/.chatatlas-local/chatatlas.db` (`chatatlas-local where`
+  says exactly where). Use another with `--db <file>` or the `CHATATLAS_LOCAL_DB` setting. It reads
+  your export files and doesn't change or delete them.
+- **Sharing:** ChatAtlas Local shares nothing with anyone, including its author. If you connect an
+  AI assistant (Claude Desktop, Claude Code, Cursor and so on), that assistant can search and read
+  your archive through read-only tools when you ask it to, and what it reads becomes part of your
+  conversation with it, under that assistant's own privacy policy.
+- **The browser view** listens on `127.0.0.1` only, answers only requests addressed to it, and every
+  request needs a random key that only the tab it opened knows.
+- **How long it's kept:** until you delete it. `chatatlas-local forget <id>` removes a chat;
+  removing the `~/.chatatlas-local` folder removes everything. Your ChatGPT and Claude accounts are
+  never touched.
+- **Installing:** npm (or GitHub, for the Claude Desktop extension) serves the download under its
+  own terms; after that, nothing goes over the network.
+- **Contact:** questions go to [GitHub issues](https://github.com/hnt504/chatatlas-local/issues);
+  anything that could expose someone's chats goes privately through
+  [security advisories](https://github.com/hnt504/chatatlas-local/security/advisories/new).
 
 ## ChatAtlas Local and ChatAtlas Pro
 

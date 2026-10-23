@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "chatatlas-local": {
+      "command": "npx",
+      "args": ["-y", "chatatlas-local@0.1.1", "mcp"]
+    }
+  }
+}
