@@ -11,6 +11,7 @@ Ask Claude about them. Nothing leaves your machine.
 <a href="https://github.com/hnt504/chatatlas-local/actions/workflows/ci.yml"><img src="https://github.com/hnt504/chatatlas-local/actions/workflows/ci.yml/badge.svg" alt="Tests"></a>
 <img src="https://img.shields.io/badge/node-22.16%2B%20or%2024%2B-3c873a" alt="Node 22.16 or newer, or 24">
 <img src="https://img.shields.io/badge/license-MIT-6366f1" alt="MIT license">
+<a href="https://glama.ai/mcp/servers/hnt504/chatatlas-local"><img src="https://glama.ai/mcp/servers/hnt504/chatatlas-local/badges/score.svg" alt="ChatAtlas Local on Glama"></a>
 </p>
 
 ![ChatAtlas Local in the browser: a search for "sourdough" with the matching chat open](docs/screenshot.png)
