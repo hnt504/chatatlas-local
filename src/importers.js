@@ -120,6 +120,13 @@ export function fromChatgpt(data) {
 // ── Claude ───────────────────────────────────────────────────────────────
 // conversations.json: [{ uuid, name, created_at, updated_at, chat_messages: [{ sender, text, content }] }]
 // `content` is a list of blocks (text, tool use, thinking...); its text blocks are the message.
+// A conversation saved from claude.ai's own API (…/chat_conversations/<uuid>?tree=True) has the
+// same shape, as one object or a list, with `parent_message_uuid` on each message and
+// `current_leaf_message_uuid` on the conversation: the whole tree, every retried or edited branch
+// included. The site shows one branch at a time; the rest are kept here after it.
+
+/** Opens each branch that a Retry or an edit hid on claude.ai. */
+export const CLAUDE_HIDDEN_BRANCH = '[Earlier version, hidden on claude.ai by a retry or an edit. Kept by ChatAtlas.]';
 
 function claudeText(m) {
   if (Array.isArray(m?.content)) {
@@ -129,18 +136,64 @@ function claudeText(m) {
   return text(m?.text).trim();
 }
 
-export const isClaudeExport = (data) => Array.isArray(data) && data.some((c) => c && typeof c === 'object' && Array.isArray(c.chat_messages));
+/** @returns {Message[]} */
+function claudeTurns(list) {
+  return list
+    .filter((m) => m && (m.sender === 'human' || m.sender === 'assistant'))
+    .map((m) => ({ role: m.sender === 'human' ? 'user' : 'assistant', content: claudeText(m) }))
+    .filter((m) => m.content);
+}
+
+/**
+ * A conversation's turns: the branch on screen first, in reading order, then each branch the
+ * person retried or edited away, newest first, each opening with CLAUDE_HIDDEN_BRANCH and holding
+ * only the turns no branch above already has. Without parent links (a data export), array order.
+ * @returns {Message[]}
+ */
+export function claudeMessages(c) {
+  const all = c.chat_messages.filter((m) => m && typeof m === 'object');
+  const byId = new Map(all.filter((m) => text(m.uuid)).map((m) => [m.uuid, m]));
+  if (!all.some((m) => text(m.parent_message_uuid) && byId.has(m.parent_message_uuid))) return claudeTurns(all);
+
+  const pathTo = (leaf) => {
+    const path = [];
+    const seen = new Set();
+    for (let m = leaf; m && !seen.has(m); m = byId.get(text(m.parent_message_uuid))) {
+      seen.add(m);
+      path.push(m);
+    }
+    return path.reverse();
+  };
+  const leaf = byId.get(text(c.current_leaf_message_uuid));
+  const current = leaf ? pathTo(leaf) : [...all].sort((a, b) => Number(a.index ?? 0) - Number(b.index ?? 0));
+  const messages = claudeTurns(current);
+  const saved = new Set(current);
+  if (saved.size === all.length) return messages;
+
+  const hasChild = new Set(all.map((m) => text(m.parent_message_uuid)));
+  const when = (m) => Date.parse(text(m.created_at)) || Number(m.index ?? 0);
+  const leaves = all.filter((m) => !hasChild.has(text(m.uuid)) && !saved.has(m)).sort((a, b) => when(b) - when(a));
+  for (const end of leaves) {
+    const path = pathTo(end).filter((m) => !saved.has(m));
+    for (const m of path) saved.add(m);
+    const turns = claudeTurns(path);
+    if (turns.length === 0) continue;
+    turns[0].content = `${CLAUDE_HIDDEN_BRANCH}\n\n${turns[0].content}`;
+    messages.push(...turns);
+  }
+  return messages;
+}
+
+const isClaudeChat = (c) => !!c && typeof c === 'object' && Array.isArray(c.chat_messages);
+
+export const isClaudeExport = (data) => isClaudeChat(data) || (Array.isArray(data) && data.some(isClaudeChat));
 
 /** @returns {Chat[]} */
 export function fromClaude(data) {
-  return data
-    .filter((c) => c && typeof c === 'object' && Array.isArray(c.chat_messages) && text(c.uuid))
+  return (Array.isArray(data) ? data : [data])
+    .filter((c) => isClaudeChat(c) && text(c.uuid))
     .map((c) => {
-      /** @type {Message[]} */
-      const messages = c.chat_messages
-        .filter((m) => m && (m.sender === 'human' || m.sender === 'assistant'))
-        .map((m) => ({ role: m.sender === 'human' ? 'user' : 'assistant', content: claudeText(m) }))
-        .filter((m) => m.content);
+      const messages = claudeMessages(c);
       return {
         id: `claude:${c.uuid}`,
         platform: 'claude',

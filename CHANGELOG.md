@@ -1,5 +1,12 @@
 # Changes
 
+## 0.1.3
+
+- Claude: import a single conversation saved from claude.ai with `tree=True` (the README shows
+  how), and keep every branch of it. The branch on screen comes first; each branch hidden by Retry
+  or by editing a message follows, opening with "Earlier version, hidden on claude.ai by a retry or
+  an edit. Kept by ChatAtlas." Nothing you wrote vanishes because you clicked Retry.
+
 ## 0.1.2
 
 - Listed in the official MCP Registry (`io.github.hnt504/chatatlas-local`).

@@ -59,6 +59,23 @@ chatatlas-local import ~/Downloads/<your ChatGPT export>.zip ~/Downloads/<your C
 Do it again whenever you like with a newer export: new chats come in, changed ones update, nothing
 doubles up. Or let it happen by itself (see [Exports folder](#an-exports-folder)).
 
+**One Claude chat, every branch.** On claude.ai, Retry or editing a message hides the old reply
+behind a small version switcher, and the next sync of most tools keeps only what is on screen. To
+save a chat with all of its branches, open it in Chrome, press F12, choose Console, and paste:
+
+```js
+(async () => {
+  const id = location.pathname.match(/\/chat\/([0-9a-f-]+)/)[1];
+  const [org] = await fetch('/api/organizations').then((r) => r.json());
+  const chat = await fetch(`/api/organizations/${org.uuid}/chat_conversations/${id}?tree=True&rendering_mode=messages&render_all_tools=true`).then((r) => r.json());
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([JSON.stringify(chat)])), download: `claude-${id}.json` });
+  a.click();
+})();
+```
+
+Then `chatatlas-local import claude-<id>.json`. The branch on screen comes first; each hidden
+branch follows it, opening with "Earlier version, hidden on claude.ai by a retry or an edit."
+
 ### 3. Look around
 
 ```sh
