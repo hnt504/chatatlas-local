@@ -8,12 +8,12 @@
     "source": "github"
   },
   "websiteUrl": "https://github.com/hnt504/chatatlas-local#readme",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "chatatlas-local",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"

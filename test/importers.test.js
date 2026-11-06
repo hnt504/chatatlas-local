@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { strToU8, zipSync } from 'fflate';
 import {
+  CLAUDE_HIDDEN_BRANCH,
   titleFor,
   chatgptMessages,
   fromChatAtlas,
@@ -61,6 +62,49 @@ test('Claude: text blocks only (no thinking or tool calls), untitled chats get a
   assert.ok(!resume.messages[1].content.includes('secret'));
   assert.equal(chats[1].title, 'What rhymes with orange?', 'an untitled chat is named by its first question');
   assert.equal(chats[1].messages[0].content, 'What rhymes with orange?', 'text works when there are no content blocks');
+});
+
+test('Claude: a conversation saved from claude.ai with tree=True keeps every branch, the one on screen first', () => {
+  // A long run of replies was written under a1, then a1 was retried and the site showed only a2.
+  // One reply under a1 had been retried too. Nothing of that run may be lost.
+  const t = (n) => `2026-01-01T00:00:${String(n).padStart(2, '0')}Z`;
+  const msg = (uuid, parent, sender, body, n) => ({ uuid, parent_message_uuid: parent, sender, created_at: t(n), content: [{ type: 'text', text: body }] });
+  const tree = {
+    uuid: 'c1003ff2-0000-4000-8000-000000000001',
+    name: 'Fable chapter 5 critique',
+    created_at: t(0),
+    current_leaf_message_uuid: 'a2',
+    chat_messages: [
+      msg('h1', '0', 'human', 'Should we pause?', 1),
+      msg('a1', 'h1', 'assistant', 'Yes. Chapter 31 next?', 2),
+      msg('h2', 'a1', 'human', 'yes please', 3),
+      msg('a3', 'h2', 'assistant', 'Chapter 31.', 4),
+      msg('h3', 'a3', 'human', 'next', 5),
+      msg('a4', 'h3', 'assistant', 'Chapter 32, first try.', 6),
+      msg('a5', 'h3', 'assistant', 'Chapter 32, retried.', 7),
+      msg('h4', 'a5', 'human', 'next', 8),
+      msg('a6', 'h4', 'assistant', 'Chapter 33.', 9),
+      msg('a2', 'h1', 'assistant', 'Yes. Here is the overlook again.', 10),
+    ],
+  };
+  const expected = [
+    { role: 'user', content: 'Should we pause?' },
+    { role: 'assistant', content: 'Yes. Here is the overlook again.' },
+    { role: 'assistant', content: `${CLAUDE_HIDDEN_BRANCH}\n\nYes. Chapter 31 next?` },
+    { role: 'user', content: 'yes please' },
+    { role: 'assistant', content: 'Chapter 31.' },
+    { role: 'user', content: 'next' },
+    { role: 'assistant', content: 'Chapter 32, retried.' },
+    { role: 'user', content: 'next' },
+    { role: 'assistant', content: 'Chapter 33.' },
+    { role: 'assistant', content: `${CLAUDE_HIDDEN_BRANCH}\n\nChapter 32, first try.` },
+  ];
+  const [one] = fromClaude(tree);
+  assert.deepEqual(one.messages, expected, 'one conversation object, as the site API sends it');
+  assert.equal(one.title, 'Fable chapter 5 critique');
+  assert.deepEqual(fromClaude([tree])[0].messages, expected, 'or a list of them');
+  assert.equal(fromJson(tree).kind, 'Claude', 'fromJson recognizes a single conversation');
+  assert.deepEqual(fromClaude(claudeExport)[0].messages.length, 2, 'a data export without parent links still reads in array order');
 });
 
 test('ChatAtlas backups keep platform and tags, and our own ids come back as they were', () => {

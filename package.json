@@ -1,6 +1,6 @@
 {
   "name": "chatatlas-local",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "mcpName": "io.github.hnt504/chatatlas-local",
   "description": "Your ChatGPT and Claude chats, searchable on your own computer, and readable by Claude through MCP. Nothing leaves your machine.",
   "type": "module",
