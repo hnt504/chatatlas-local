@@ -63,9 +63,17 @@ jobs:
           fi
       # The official MCP Registry (registry.modelcontextprotocol.io) lists the server from
       # server.json; it checks that the npm package's mcpName matches, and GitHub's identity proves
-      # the io.github.hnt504 namespace. No secret needed.
+      # the io.github.hnt504 namespace. No secret needed. It also checks that npm has the
+      # version, and npm can take a minute or two to show a new one (v0.1.3's registry step
+      # failed that way), so wait for npm first.
       - name: Publish to the MCP Registry
         run: |
+          v=$(node -p "require('./package.json').version")
+          for i in $(seq 1 30); do
+            if npm view "chatatlas-local@$v" version >/dev/null 2>&1; then break; fi
+            echo "Waiting for npm to show chatatlas-local@$v ($i of 30)..."
+            sleep 20
+          done
           curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish
