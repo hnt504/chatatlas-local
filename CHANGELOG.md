@@ -1,6 +1,6 @@
 # Changes
 
-## Unreleased
+## 0.1.4
 
 - `mcp --http`: the same MCP server at `http://127.0.0.1:8770/mcp`, for assistants that live in a
   browser page, such as llama.cpp's web UI or Open WebUI. It answers on this computer only,
