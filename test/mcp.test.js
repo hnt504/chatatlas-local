@@ -17,6 +17,9 @@ test('protocol: negotiate, readMessage, unknown methods and tools', async () => 
   for (const t of MCP_TOOLS) {
     assert.equal(t.annotations.readOnlyHint, true, `${t.name} only reads`);
     assert.ok(!/—/.test(t.description), `${t.name}'s description has no em dash`);
+    // Assistants often have their own "saved chats" tool (llama.cpp's web UI does); naming the
+    // archive keeps a model from picking that one instead.
+    assert.match(t.description, /ChatAtlas archive/, `${t.name}'s description names the ChatAtlas archive`);
   }
 });
 

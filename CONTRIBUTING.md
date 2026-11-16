@@ -22,7 +22,7 @@ Use a throwaway archive while you work: `--db /tmp/test.db`, or `CHATATLAS_LOCAL
 | `src/importers.js` | Reading ChatGPT, Claude and ChatAtlas exports into one shape |
 | `src/db.js` | The archive: SQLite, the FTS5 search index, imports |
 | `src/format.js` | Dates, snippets, pages of a chat, Markdown |
-| `src/tools.js`, `src/protocol.js`, `src/stdio.js` | The MCP server |
+| `src/tools.js`, `src/protocol.js`, `src/stdio.js`, `src/http.js` | The MCP server (stdio, and `mcp --http`) |
 | `src/viewer.js`, `src/viewer.html` | The browser view (`open`) |
 | `src/inbox.js` | The exports folder (`watch`, `mcp --inbox`) |
 | `src/setup.js` | Connecting Claude Desktop, Claude Code, Cursor and the rest |

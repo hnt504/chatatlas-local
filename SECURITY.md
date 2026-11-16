@@ -6,6 +6,8 @@ ChatAtlas Local keeps private conversations, so its promises are simple:
 - The browser view (`chatatlas-local open`) listens on 127.0.0.1 only, refuses requests addressed
   to any other host name, and needs a random key for every request. The key is made fresh each
   time and lives only in the tab that was opened.
+- `mcp --http` listens on 127.0.0.1 only, refuses requests addressed to any other host name,
+  and refuses any browser page that wasn't named with `--allow-origin` before a tool runs.
 - The MCP tools only read. They can't change, tag or delete anything.
 
 If you find a way around any of that, or anything else that could expose someone's chats, please
