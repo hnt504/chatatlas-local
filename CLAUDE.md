@@ -1,8 +1,8 @@
 # ChatAtlas Local
 
 The free, open-source, local version of ChatAtlas (hnt504/ChatAtlas, chatatlas.pro, which is private
-and paid). Imports ChatGPT/Claude exports into one SQLite file and serves it over MCP (stdio), a
-CLI and a 127.0.0.1 browser view. See CONTRIBUTING.md for where things are.
+and paid). Imports ChatGPT/Claude exports into one SQLite file and serves it over MCP (stdio, or
+Streamable HTTP on 127.0.0.1 with `mcp --http`), a CLI and a 127.0.0.1 browser view. See CONTRIBUTING.md for where things are.
 
 - `npm run check` (prettier, `tsc` over JSDoc, `node:test`) before every push; CI runs it on
   Linux, macOS and Windows with Node 22.16, 22 and 24. Node 22.13 to 22.15 and 23 have no FTS5 in

@@ -35,7 +35,7 @@ export const MCP_TOOLS = [
     name: 'search_chats',
     title: 'Search chats',
     description:
-      "Find the user's saved conversations that mention something: chats holding every word of the query in the title or messages (each word also matches longer words it starts, accents ignored), title matches first, then newest, with the best-matching message quoted. Each result has the chat's id for read_chat.",
+      "Search the user's ChatAtlas archive (their saved ChatGPT, Claude, Gemini and other AI chats, kept on their own computer) for conversations that mention something: chats holding every word of the query in the title or messages (each word also matches longer words it starts, accents ignored), title matches first, then newest, with the best-matching message quoted. Each result has the chat's id for read_chat.",
     inputSchema: {
       type: 'object',
       properties: {
@@ -55,7 +55,7 @@ export const MCP_TOOLS = [
     name: 'list_chats',
     title: 'List chats',
     description:
-      "Browse the user's saved conversations, newest first, by platform, date, words in the title or tag. Each line has the chat's id for read_chat.",
+      "Browse the user's ChatAtlas archive (their saved ChatGPT, Claude, Gemini and other AI chats), newest first, by platform, date, words in the title or tag. Each line has the chat's id for read_chat.",
     inputSchema: {
       type: 'object',
       properties: {
@@ -75,7 +75,7 @@ export const MCP_TOOLS = [
     name: 'read_chat',
     title: 'Read a chat',
     description:
-      'Read one saved conversation, message by message, numbered from 1. Long chats come a page at a time: carry on with from_message. A very long single message comes in parts: carry on with part.',
+      "Read one conversation from the user's ChatAtlas archive, message by message, numbered from 1. Long chats come a page at a time: carry on with from_message. A very long single message comes in parts: carry on with part.",
     inputSchema: {
       type: 'object',
       properties: {
@@ -92,7 +92,7 @@ export const MCP_TOOLS = [
     name: 'recent_topics',
     title: 'Recent topics',
     description:
-      "What the user talked about with their AIs over a stretch of days: how many chats on each platform, the tags that come up most, and the chats' titles week by week.",
+      "From the user's ChatAtlas archive: what they talked about with their AIs over a stretch of days: how many chats on each platform, the tags that come up most, and the chats' titles week by week.",
     inputSchema: {
       type: 'object',
       properties: {
@@ -106,7 +106,8 @@ export const MCP_TOOLS = [
   {
     name: 'archive_overview',
     title: 'Archive overview',
-    description: 'What the archive holds: how many chats from each platform, the dates they cover, the tags in use and when it was last imported.',
+    description:
+      "What the user's ChatAtlas archive holds: how many chats from each platform, the dates they cover, the tags in use and when it was last imported.",
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
     annotations: readOnly('Archive overview'),
   },

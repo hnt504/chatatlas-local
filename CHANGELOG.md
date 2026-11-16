@@ -1,5 +1,17 @@
 # Changes
 
+## 0.1.4
+
+- `mcp --http`: the same MCP server at `http://127.0.0.1:8770/mcp`, for assistants that live in a
+  browser page, such as llama.cpp's web UI or Open WebUI. It answers on this computer only,
+  refuses look-alike host names, and lets in only the browser pages named with `--allow-origin`.
+- Over `mcp --http` the tools are named `chatatlas_search_chats` and so on, because llama.cpp's
+  web UI has a `search_chats` of its own that took the calls. Over stdio the names are unchanged.
+- `mcp --http --verbose` logs one line per request (the kind of request and which page sent it,
+  never chat text or search words), for finding out why an assistant isn't using the tools.
+- Every tool's description now says it reads the user's ChatAtlas archive, so an assistant with its
+  own "saved chats" tool (llama.cpp's web UI has one) picks the right one.
+
 ## 0.1.3
 
 - Claude: import a single conversation saved from claude.ai with `tree=True` (the README shows

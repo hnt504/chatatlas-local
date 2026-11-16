@@ -130,6 +130,29 @@ chatatlas-local setup cursor --write  # or vscode, windsurf, gemini-cli, codex
 
 `--write` keeps a copy of the app's old settings file next to it before changing anything.
 
+### Assistants in a browser page (llama.cpp, Open WebUI)
+
+Some assistants run inside a web page and can't start a program the way Claude Desktop does. They
+connect to an MCP address instead. `mcp --http` gives them one, on your computer only:
+
+```sh
+chatatlas-local mcp --http --allow-origin http://localhost:8081
+```
+
+Then add `http://127.0.0.1:8770/mcp` as an MCP server in the assistant's settings (in llama.cpp's
+web UI, that's the MCP Servers page). Use the address its page opens at for `--allow-origin`. With
+a local model, your chats never leave your computer.
+
+It listens on `127.0.0.1` only, answers only requests addressed to it, and lets in only the pages
+you name with `--allow-origin` (several are fine, separated by commas). Programs on your computer
+that aren't browsers can use it too, as they could read the archive file anyway. Use `--port` for
+another port, and `--verbose` to see each request (never your chats or search words). Stop it with
+Ctrl+C.
+
+Here the tools are named `chatatlas_search_chats`, `chatatlas_read_chat` and so on. Browser
+assistants put every tool in one list, and some have a `search_chats` of their own (llama.cpp's
+web UI does, for chats saved in the web UI), which would otherwise be used instead.
+
 ### What about ChatGPT?
 
 ChatGPT can't reach a file on your computer, so it can't read your archive here. You can still
@@ -199,6 +222,8 @@ ChatAtlas Local is a program that runs on your computer. It has no servers and n
   conversation with it, under that assistant's own privacy policy.
 - **The browser view** listens on `127.0.0.1` only, answers only requests addressed to it, and every
   request needs a random key that only the tab it opened knows.
+- **`mcp --http`** listens on `127.0.0.1` only, answers only requests addressed to it, and refuses
+  any web page you didn't name with `--allow-origin` before it reads anything.
 - **How long it's kept:** until you delete it. `chatatlas-local forget <id>` removes a chat;
   removing the `~/.chatatlas-local` folder removes everything. Your ChatGPT and Claude accounts are
   never touched.

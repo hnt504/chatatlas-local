@@ -11,12 +11,13 @@ import { readExport, toChatAtlasBackup } from './importers.js';
 import { bestMessage, chatLine, chatMarkdown, clampInt, dayLabel, fileNameFor, parseDate, platformName, plural, snippet, speaker } from './format.js';
 import { recentTopics } from './tools.js';
 import { serveStdio } from './stdio.js';
+import { DEFAULT_HTTP_PORT, parseAllowedOrigins, startHttpServer } from './http.js';
 import { MCP_SERVER } from './protocol.js';
 import { SERVER_NAME, claudeCodeCommand, clients, installSkill, isNpxCopy, serverEntry, shellLine, skillsDir, snippetFor, writeClient } from './setup.js';
 import { openInBrowser, startViewer } from './viewer.js';
 import { watchInbox } from './inbox.js';
 
-const FLAGS = ['help', 'version', 'json', 'md', 'yes', 'write', 'remove', 'browser', 'readOnly', 'all'];
+const FLAGS = ['help', 'version', 'json', 'md', 'yes', 'write', 'remove', 'browser', 'readOnly', 'all', 'http', 'verbose'];
 
 const tty = process.stdout.isTTY && !process.env.NO_COLOR;
 const paint = (code) => (s) => (tty ? `\x1b[${code}m${s}\x1b[0m` : String(s));
@@ -56,6 +57,11 @@ ${bold('Connect an assistant')}
   skill                   Install the Claude Code skill (so Claude knows to look here).
   mcp                     The MCP server itself. Assistants start this; you don't need to.
                           (--inbox <folder> also brings in exports dropped there.)
+  mcp --http              The same server at http://127.0.0.1:8770/mcp, for assistants in a
+                          browser page such as llama.cpp's web UI or Open WebUI. This computer
+                          only; --port, and --allow-origin <page> for the page that may use it
+                          (for llama.cpp: --allow-origin http://localhost:8081). --verbose logs
+                          each request (never your chats or search words).
 
 ${bold('Look after it')}
   tag <id> <tag...>       Tag a chat (--remove to take tags off).
@@ -452,10 +458,52 @@ async function cmdMcp(dbPath, args) {
     // After the handshake has had its moment: reading a big export takes a few seconds.
     else timer = setTimeout(() => (stop = watchInbox(getArchive(), inbox, { log })), 1500);
   }
-  await serveStdio({ getArchive });
+  // Either server closes the archive when it stops.
+  if (args.http) await serveHttp(getArchive, args);
+  else await serveStdio({ getArchive });
   clearTimeout(timer);
   stop?.();
   return 0;
+}
+
+/** `mcp --http`: the same server on 127.0.0.1, for assistants that run in a browser page. */
+async function serveHttp(getArchive, args) {
+  let allowedOrigins;
+  try {
+    allowedOrigins = parseAllowedOrigins(args.allowOrigin);
+  } catch (err) {
+    throw new Problem(err.message);
+  }
+  const port = args.port === undefined ? DEFAULT_HTTP_PORT : clampInt(args.port, 0, 65535, -1);
+  if (port < 0) throw new Problem('--port needs a number, like 8770.');
+  let started;
+  try {
+    started = await startHttpServer({
+      getArchive,
+      port,
+      allowedOrigins,
+      log: args.verbose
+        ? (m) =>
+            process.stderr.write(`[chatatlas-local] ${m}
+`)
+        : null,
+    });
+  } catch (err) {
+    if (err?.code === 'EADDRINUSE') throw new Problem(`Something else is using port ${port}. Pick another with --port.`);
+    throw err;
+  }
+  const log = (m) => process.stderr.write(`[chatatlas-local] ${m}\n`);
+  log(`MCP over HTTP at ${started.url} (this computer only).`);
+  log(
+    allowedOrigins.length
+      ? `Browser pages allowed: ${allowedOrigins.join(', ')}`
+      : 'No browser page is allowed. Add --allow-origin http://localhost:8081 for one.',
+  );
+  await new Promise((done) => {
+    const finish = () => started.server.close(() => done(undefined));
+    process.once('SIGINT', finish);
+    process.once('SIGTERM', finish);
+  });
 }
 
 async function cmdWatch(dbPath, rest) {
